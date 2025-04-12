@@ -39,7 +39,7 @@ export const translate = async (
   );
 
   // Read .wav file and convert it to required format
-  let wav = new WaveFile(wavData);
+  const wav = new WaveFile(wavData);
   wav.toBitDepth("32f"); // Pipeline expects input as a Float32Array
   wav.toSampleRate(16000); // Whisper expects audio with a sampling rate of 16000
   let audioData = wav.getSamples();
