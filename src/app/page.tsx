@@ -27,10 +27,14 @@ export default function Home() {
     }
   };
 
-  const { ffmpeg, isLoading: ffmpegLoading, error: ffmpegError } = useFFmpeg();
+  const { ffmpeg, isLoading: ffmpegLoading } = useFFmpeg();
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
+    if (!ffmpeg) {
+      setError("FFmpeg is not loaded yet.");
+      return;
+    }
     console.log("Audio File:", audioFile);
     console.log("Source Language:", sourceLanguage);
     console.log("Destination Language:", destinationLanguage);
@@ -107,10 +111,7 @@ export default function Home() {
       setLanguagePairs(languages);
       const availableLanguages = Array.from(languages.keys());
       setAvailableLanguages(availableLanguages);
-      const availableDestinations = languages.get(sourceLanguage) || [];
-      setAvailableDestinations(availableDestinations);
       console.log("Available Languages:", availableLanguages);
-      console.log("Available Destinations:", availableDestinations);
     };
     fetchLanguages();
   }, []);

@@ -1,9 +1,10 @@
 "use client";
 
+import type { FFmpeg } from "@ffmpeg/ffmpeg";
 import { useEffect, useState } from "react";
 
 export default function useFFmpeg() {
-  const [ffmpeg, setFfmpeg] = useState<any>(null);
+  const [ffmpeg, setFfmpeg] = useState<FFmpeg | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -27,7 +28,8 @@ export default function useFFmpeg() {
           ),
         });
         setFfmpeg(ffmpegInstance);
-      } catch (err) {
+      } catch (e) {
+        console.error("Error loading FFmpeg:", e);
         setError("Failed to load FFmpeg");
       } finally {
         setIsLoading(false);
