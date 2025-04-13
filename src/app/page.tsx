@@ -1,5 +1,6 @@
 "use client";
 
+import useFFmpeg from "@/hooks/use-ffmpeg";
 import { getLanguages, translate } from "@/server/translate";
 import React, { useEffect, useState } from "react";
 
@@ -26,6 +27,8 @@ export default function Home() {
     }
   };
 
+  const { ffmpeg, isLoading: ffmpegLoading, error: ffmpegError } = useFFmpeg();
+
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
     console.log("Audio File:", audioFile);
@@ -45,23 +48,6 @@ export default function Home() {
         return;
       }
       // Re-encode audio file from any source type to .wav
-      const baseURL = "https://unpkg.com/@ffmpeg/core@0.12.6/dist/umd";
-
-      const { FFmpeg } = await import("@ffmpeg/ffmpeg");
-      const { toBlobURL } = await import("@ffmpeg/util");
-
-      const ffmpeg = new FFmpeg();
-      await ffmpeg.load({
-        coreURL: await toBlobURL(
-          `${baseURL}/ffmpeg-core.js`,
-          "text/javascript"
-        ),
-        wasmURL: await toBlobURL(
-          `${baseURL}/ffmpeg-core.wasm`,
-          "application/wasm"
-        ),
-      });
-
       let buffer = await audioFile.arrayBuffer();
       let view = new Uint8Array(buffer);
       if (mimeType !== "audio/wav") {
@@ -136,79 +122,84 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-base-200 flex items-center justify-center flex-col gap-4 py-4">
-      <div className="card w-full max-w-md shadow-xl bg-base-100">
-        <div className="card-body relative overflow-hidden">
-          <h2 className="card-title">Audio Translator</h2>
-          <form onSubmit={handleSubmit} className="space-y-4">
-            {/* File Input */}
-            <div className="form-control">
-              <label className="label">
-                <span className="label-text">Upload Audio File</span>
-              </label>
-              <input
-                type="file"
-                accept="audio/*"
-                onChange={handleFileChange}
-                className="file-input file-input-bordered w-full"
-              />
-            </div>
+      {ffmpegLoading && (
+        <div className="loading loading-spinner loading-lg text-primary m-auto block"></div>
+      )}
+      {!ffmpegLoading && (
+        <div className="card w-full max-w-md shadow-xl bg-base-100">
+          <div className="card-body relative overflow-hidden">
+            <h2 className="card-title">Audio Translator</h2>
+            <form onSubmit={handleSubmit} className="space-y-4">
+              {/* File Input */}
+              <div className="form-control">
+                <label className="label">
+                  <span className="label-text">Upload Audio File</span>
+                </label>
+                <input
+                  type="file"
+                  accept="audio/*"
+                  onChange={handleFileChange}
+                  className="file-input file-input-bordered w-full"
+                />
+              </div>
 
-            {/* Source Language Selector */}
-            <div className="form-control">
-              <label className="label">
-                <span className="label-text">Source Language</span>
-              </label>
-              <select
-                value={sourceLanguage}
-                onChange={(e) => setSourceLanguage(e.target.value)}
-                className="select select-bordered w-full"
-              >
-                <option disabled value="">
-                  Select Source Language
-                </option>
-                {availableLanguages.map((language) => (
-                  <option key={language} value={language}>
-                    {language}
+              {/* Source Language Selector */}
+              <div className="form-control">
+                <label className="label">
+                  <span className="label-text">Source Language</span>
+                </label>
+                <select
+                  value={sourceLanguage}
+                  onChange={(e) => setSourceLanguage(e.target.value)}
+                  className="select select-bordered w-full"
+                >
+                  <option disabled value="">
+                    Select Source Language
                   </option>
-                ))}
-              </select>
-            </div>
+                  {availableLanguages.map((language) => (
+                    <option key={language} value={language}>
+                      {language}
+                    </option>
+                  ))}
+                </select>
+              </div>
 
-            {/* Destination Language Selector */}
-            <div className="form-control">
-              <label className="label">
-                <span className="label-text">Destination Language</span>
-              </label>
-              <select
-                value={destinationLanguage}
-                onChange={(e) => setDestinationLanguage(e.target.value)}
-                className="select select-bordered w-full"
-              >
-                <option disabled value="">
-                  Select Destination Language
-                </option>
-                {availableDestinations.map((language) => (
-                  <option key={language} value={language}>
-                    {language}
+              {/* Destination Language Selector */}
+              <div className="form-control">
+                <label className="label">
+                  <span className="label-text">Destination Language</span>
+                </label>
+                <select
+                  value={destinationLanguage}
+                  onChange={(e) => setDestinationLanguage(e.target.value)}
+                  className="select select-bordered w-full"
+                >
+                  <option disabled value="">
+                    Select Destination Language
                   </option>
-                ))}
-              </select>
-            </div>
+                  {availableDestinations.map((language) => (
+                    <option key={language} value={language}>
+                      {language}
+                    </option>
+                  ))}
+                </select>
+              </div>
 
-            {/* Submit Button */}
-            <div className="form-control mt-4">
-              <button type="submit" className="btn btn-primary w-full">
-                Translate
-              </button>
-            </div>
-          </form>
-          {isLoading && (
-            <div className="absolute top-0 left-0 bottom-0 right-0 p-4 bg-[rgba(0,0,0,0.5)]">
-              <div className="loading loading-spinner loading-lg text-primary m-auto block"></div>
-            </div>
-          )}
+              {/* Submit Button */}
+              <div className="form-control mt-4">
+                <button type="submit" className="btn btn-primary w-full">
+                  Translate
+                </button>
+              </div>
+            </form>
+            {isLoading && (
+              <div className="absolute top-0 left-0 bottom-0 right-0 p-4 bg-[rgba(0,0,0,0.5)]">
+                <div className="loading loading-spinner loading-lg text-primary m-auto block"></div>
+              </div>
+            )}
+          </div>
         </div>
-      </div>
+      )}
       {isConverting && (
         <div className="alert alert-info mt-4">
           <span>Converting audio file...</span>
