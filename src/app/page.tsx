@@ -187,7 +187,7 @@ export default function Home() {
               </div>
 
               {/* Submit Button */}
-              <div className="form-control mt-4">
+              <div className="form-control">
                 <button type="submit" className="btn btn-primary w-full">
                   Translate
                 </button>
@@ -202,17 +202,17 @@ export default function Home() {
         </div>
       )}
       {isConverting && (
-        <div className="alert alert-info mt-4">
+        <div className="alert alert-info">
           <span>Converting audio file...</span>
         </div>
       )}
       {isTranslating && (
-        <div className="alert alert-info mt-4">
+        <div className="alert alert-info">
           <span>Translating...</span>
         </div>
       )}
       {error && (
-        <div className="alert alert-error mt-4">
+        <div className="alert alert-error">
           <span>{error}</span>
         </div>
       )}
